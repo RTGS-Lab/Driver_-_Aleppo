@@ -112,13 +112,22 @@ String Aleppo::selfDiagnostic(uint8_t diagnosticLevel, time_t time)
 					vals[i] = data.toFloat();
 				}
 			}
+			sensorB = sensorB + "\"Airflow\":" + String(vals[0]) + ",\"FanSpeed\":" + String(vals[1]) + ",\"Current\":" + String(vals[2]) + ",\"Temperature\":" + String(vals[3]);
+
+			data = talon.command("D2", adr);
+			Serial.print("DATA: "); //DEBUG!
+			Serial.println(data);
+			data.remove(0,2); //Trim leading address 
+			float lux = (data.substring(0, data.indexOf("+"))).toFloat();
+			output = output + "\"ALS\":" + String(lux);
 			// for(int i = 0; i < 4; i++) {
 			// 	vals[i] = (data.substring(0, data.indexOf("+"))).toFloat();
 			// 	data.remove(0, data.indexOf("+") + 1);
 			// }
-			sensorB = sensorB + "\"Airflow\":" + String(vals[0]) + ",\"FanSpeed\":" + String(vals[1]) + ",\"Current\":" + String(vals[2]) + ",\"Temperature\":" + String(vals[3]);
+			
 		}
 		else {
+			output = output + "\"ALS\":null"; 
 			sensorA = sensorA + "\"Airflow\":null,\"FanSpeed\":null,\"Current\":null,\"Temperature\":null"; //Otherwise append null string
 			sensorB = sensorB + "\"Airflow\":null,\"FanSpeed\":null,\"Current\":null,\"Temperature\":null"; //Otherwise append null string
 		}
@@ -138,7 +147,7 @@ String Aleppo::selfDiagnostic(uint8_t diagnosticLevel, time_t time)
 	}
 	sensorA = sensorA + "}"; //Close sensor A string
 	sensorB = sensorB + "}"; //Clone sensor B string
-	return output + sensorA + "," + sensorB + ",\"Pos\":[" + getTalonPortString() + "," + getSensorPortString() + "]}"; //Write position in logical form - Return compleated closed output
+	return output +  "," + sensorA + "," + sensorB + ",\"Pos\":[" + getTalonPortString() + "," + getSensorPortString() + "]}"; //Write position in logical form - Return compleated closed output
 }
 
 String Aleppo::getMetadata()
